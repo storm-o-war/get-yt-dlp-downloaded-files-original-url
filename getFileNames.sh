@@ -1,8 +1,10 @@
 #!/bin/bash
 set -u
 DIR="${1:-.}"
-OUTPUT="extracted_texts.txt"
-: > "$OUTPUT"
+ALL_OUT="extracted_texts.txt"      # all extracted texts
+LEN11_OUT="matched_11.txt"         # only 11-char texts
+: > "$ALL_OUT"
+: > "$LEN11_OUT"
 ESC=$(printf '\033')
 i=0
 for file in "$DIR"/*; do
@@ -15,8 +17,12 @@ for file in "$DIR"/*; do
     printf '%s\n' "$name" | sed "s/\[\([^]]*\)\]/\[${ESC}[0;32m\1${ESC}[0m\]/g"
     for text in "${texts[@]}"; do
         printf -- "-> %d characters inside '[]'\n" "${#text}"
-        printf '%s\n' "$text" >> "$OUTPUT"
+        printf '%s\n' "$text" >> "$ALL_OUT"
+        if [ "${#text}" -eq 11 ]; then
+            printf '%s\n' "$text" >> "$LEN11_OUT"
+        fi
     done
     printf '\n'
 done
-printf 'Done. Extracted texts saved to: %s\n' "$OUTPUT"
+printf 'All texts        -> %s\n' "$ALL_OUT"
+printf '11-char texts    -> %s\n' "$LEN11_OUT"
